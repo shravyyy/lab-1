@@ -82,7 +82,7 @@ mets_ben <- Teams |>
 mets_ben
 ```
 
-```{r Rename }
+```{r Rename functionality }
 mets_ben <- mets_ben |>
   dplyr::rename(RS= R)    # new name = old name
 mets_ben
