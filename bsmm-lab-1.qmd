@@ -1,8 +1,8 @@
 ---
 title: "BSMM-lab-1"
 subtitle: "BSMM 8740 Fall 2023"
-author: "Add your name here"
-date: "Add the date here"
+author: "Shravya Pusa"
+date: "2022-09-18"
 format: html
 editor: visual
 self-contained: true
@@ -15,9 +15,23 @@ Load packages and data:
 ```{r load-pkg-data}
 #| message: false
 # install the package 'Lahman'
-install.packages('Lahman')
+#install.packages('Lahman')
 # load the package
 library(Lahman)
+```
+
+```{r}
+# Access the Batting dataset
+batting<-data("Batting")
+#view(batting)
+
+#install.packages(ikea)
+
+#dplyr::glimpse(ikea)
+```
+
+```{r}
+dplyr::glimpse(Teams)
 ```
 
 ## Exercises
@@ -28,40 +42,114 @@ library(Lahman)
 dplyr::glimpse(Teams)
 ```
 
-The `Teams` dataset has \_\_\_ observations and \_\_\_ variables.
+The `Teams` dataset has \_3015\_\_ observations and \_48\_\_ variables.
 
 ### Exercise 2
 
-...
+```{r get dplyr}
+# Load the necessary library
+
+library(dplyr)
+```
+
+```{r Filter & Select Functionality}
+# Filter the data to select only records for the New York Mets (teamID == "NYN")
+mets <- Teams %>%
+  filter(teamID == "NYN")
+
+# Further filter the data to select only records for the years 2004 to 2012
+my_mets <- mets %>%
+  filter(yearID >= 2004 & yearID <= 2012)
+
+# Select the columns of interest (yearID, W, and L)
+my_mets <- my_mets %>%
+  select(yearID, W, L)
+
+# View the resulting data frame to see the team's W/L record during those years
+print(my_mets)
+```
+
+```{r}
+#mets_t <- Teams[filter(teamID == "NYN")]
+```
 
 ### Exercise 3
 
-...
+```{r Use Of IN functionality}
+mets_ben <- Teams |>
+  dplyr::select(yearID, G, teamID,R, RA, W, L) |>
+  dplyr::filter(teamID == "NYN" & yearID %in% 2004:2012)
+mets_ben
+```
+
+```{r Rename }
+mets_ben <- mets_ben |>
+  dplyr::rename(RS= R)    # new name = old name
+mets_ben
+```
 
 ### Exercise 4
 
-...
+```{r Mutate in R}
+mets_ben <- mets_ben |>
+  dplyr::mutate(WPct = 1 / (1 + (RA / RS) * 2))
+mets_ben <- mets_ben |>
+  dplyr::mutate(W_hat =WPct*G)
+mets_ben
+```
 
 ### Exercise 5
 
-...
+```{r Mutate & IfElse in R}
+mets_ben <- mets_ben |>
+ dplyr:: mutate(Performance = ifelse(W > W_hat, "Better", "Worse"))
+
+mets_ben
+```
 
 ### Exercise 6
 
-...
+```{r arrange functionality}
+best_seasons <- dplyr::arrange(mets_ben, desc(W))
+
+best_seasons
+```
 
 ### Exercise 7
 
-...
+```{r Mutate and Substract(Diff) functionality}
+mets_ben <-mets_ben |> 
+  dplyr::mutate(Diff = W -W_hat) |>
+  dplyr::arrange(desc(Diff))
+mets_ben
+```
 
 ### Exercise 8
 
-...
+```{r Get mean, sum , & Summarize}
+mets_ben |>
+  dplyr::summarize(
+    num_years = n(), 
+    total_W = sum(W), 
+    total_L = sum(L), 
+    total_WPct =mean(WPct), 
+    sum_resid = sum(Diff)
+  )
+```
 
 ### Exercise 9
 
-...
-
 ### Exercise 10
 
-...
+```{r Case when use case}
+library(dplyr)
+mets_ben <- mets_ben %>%
+  dplyr::mutate(
+    gm = case_when(
+      yearID == 2004 ~ "Jim Duquette",
+      yearID >= 2005 & yearID <= 2010 ~ "Omar Minaya",
+      yearID >= 2011 ~ "Sandy Alderson"
+    )
+  )
+mets_ben
+```
